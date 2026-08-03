@@ -1019,34 +1019,7 @@ window.initDashboard = function() {
 };
 
 // ── BOOT ──────────────────────────────────────────────────────────────────
-// Wait for real Firebase auth readiness instead of racing a fixed timer —
-// a hard 1.5s timeout was firing initDashboard() before auth resolved on
-// slower connections, causing spurious "Database connection error" toasts.
 window.addEventListener('load',()=>{
-  const MAX_WAIT_MS = 10000;
-  const POLL_MS = 100;
-  let waited = 0;
-
-  const tryStart = () => {
-    if (window.isReady) {
-      window.initDashboard();
-      return;
-    }
-    if (window.authFailed) {
-      const ol=document.getElementById('loadingOverlay'); if(ol)ol.style.display='none';
-      showMsg('Could not authenticate with the database. Check your connection and reload.','error');
-      return;
-    }
-    waited += POLL_MS;
-    if (waited >= MAX_WAIT_MS) {
-      const ol=document.getElementById('loadingOverlay'); if(ol)ol.style.display='none';
-      showMsg('Database connection is taking longer than expected.','error');
-      // Keep polling in the background in case it still comes through.
-      setTimeout(tryStart, POLL_MS);
-      return;
-    }
-    setTimeout(tryStart, POLL_MS);
-  };
-
-  tryStart();
+  if(window.isReady) window.initDashboard();
+  else setTimeout(()=>window.initDashboard?.(),1500);
 });
